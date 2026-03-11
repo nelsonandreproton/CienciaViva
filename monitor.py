@@ -68,6 +68,7 @@ def load_state() -> dict:
         "last_check": "",
         "last_error_alert": "",
         "last_reminder_alert": "",
+        "last_sunday_alert": "",
         "content_change_count": 0,
     }
 
@@ -231,6 +232,20 @@ def run_check() -> None:
             )
             if sent:
                 state["last_reminder_alert"] = now
+
+    # Sunday status report: "ainda não abertas" (only if registrations not open yet)
+    # Uses local time (TZ=Europe/Lisbon) so Sunday is correct for PT
+    today_local = datetime.now().strftime("%Y-%m-%d")
+    is_sunday = datetime.now().weekday() == 6
+    if is_sunday and not state["alerted_2026"] and state.get("last_sunday_alert") != today_local:
+        log.info("Domingo — a enviar status 'ainda não abertas'.")
+        sent = send_telegram(
+            f"📅 <b>Ciência Viva 2026 — estado semanal</b>\n\n"
+            f"As inscrições para Ciência Viva no Laboratório 2026 ainda não abriram.\n\n"
+            f"👉 <a href='{TARGET_URL}'>Página oficial</a>"
+        )
+        if sent:
+            state["last_sunday_alert"] = today_local
 
     state["last_content_hash"] = current_hash
     state["last_check"] = now
