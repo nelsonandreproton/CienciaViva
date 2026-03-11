@@ -1,0 +1,23 @@
+services:
+  monitor:
+    build: .
+    image: cienciaviva-monitor
+    container_name: cienciaviva-monitor
+    restart: always
+    env_file: .env
+    environment:
+      - TZ=Europe/Lisbon
+    volumes:
+      - ./data:/data
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 128M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
