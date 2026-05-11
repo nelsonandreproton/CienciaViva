@@ -18,14 +18,6 @@ import requests
 import schedule
 from bs4 import BeautifulSoup
 
-# Heartbeat integration — optional: silently skipped if module not available
-# (e.g. during local development without the HetznerCheck volume mounted).
-try:
-    from heartbeat import beat as _hb_beat  # mounted at /hetznercheck via PYTHONPATH
-    _HEARTBEAT_AVAILABLE = True
-except ImportError:
-    _HEARTBEAT_AVAILABLE = False
-
 # ── Config ────────────────────────────────────────────────────────────────────
 
 TARGET_URL = "https://www.cienciaviva.pt/ciencia-viva-no-laboratorio/"
@@ -258,15 +250,6 @@ def run_check() -> None:
     state["last_content_hash"] = current_hash
     state["last_check"] = now
     save_state(state)
-
-    if _HEARTBEAT_AVAILABLE:
-        alerted_note = "2026 registrations open" if state["alerted_2026"] else "monitoring, not open yet"
-        _hb_beat(
-            "CienciaViva",
-            status="ok",
-            note=alerted_note,
-            next_in_seconds=86400,
-        )
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
