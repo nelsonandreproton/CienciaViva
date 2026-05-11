@@ -7,8 +7,12 @@ services:
     env_file: .env
     environment:
       - TZ=Europe/Lisbon
+      - PYTHONPATH=/hetznercheck
+      - HEARTBEAT_DB=/app/heartbeats/heartbeats.db
     volumes:
       - ./data:/data
+      - ../HetznerCheck:/hetznercheck:ro            # heartbeat module
+      - heartbeats_data:/app/heartbeats             # shared liveness DB (read/write)
     security_opt:
       - no-new-privileges:true
     deploy:
@@ -21,3 +25,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  heartbeats_data:
+    external: true                                  # created by homeserver docker-compose
+    name: homeserver_heartbeats_data
